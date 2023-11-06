@@ -1,5 +1,5 @@
 from random import randint
-def monty_hall(numberOfIterations: int = 100):
+def monty_hall(numberOfIterations: int=100):
     countChooseOtherDoor = 0
     for _ in range(0, numberOfIterations):
         userNumDoor = randint(1, 3)
