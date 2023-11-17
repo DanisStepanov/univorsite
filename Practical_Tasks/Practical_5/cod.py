@@ -1,7 +1,7 @@
 import os
 def main():
     try:
-        name = input('Введите имя файла, для его будущего использования')
+        name = input('Введите имя файла, для его будущего использования:')
         if not os.path.exists(f"{name}.txt"):
             flag=False
             while flag == False:
