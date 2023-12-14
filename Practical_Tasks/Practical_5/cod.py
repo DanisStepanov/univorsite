@@ -14,6 +14,14 @@ def main():
         open_file.close()
         return a
     except FileNotFoundError:
-            print("Такого файла нет, попробуйте ещё раз: ")
-            return main()
-print(main())
+        print("Такого файла нет, попробуйте ещё раз: ")
+    except OSError:
+        return "Ошибка операционной системы!"
+    except ValueError:
+        return "В файле есть специфические символы!"
+    except :
+        return "Произошла фотальная ошибка!"
+    else:
+        return main()
+
+####Прописать все ошибки до конца и в конце фотальная ошибка

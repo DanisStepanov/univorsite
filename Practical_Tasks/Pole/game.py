@@ -1,87 +1,107 @@
-import random
-from random import *
-def game():
-    global l
-    difficult = input('Уровень сложности: сложный - введите "3" '
-                      '\n средний - введите "2" '
-                      '\n новичок - введите "1"'''
-                      '\n Введите число: ')
-    if difficult.strip() == '3':
-        l = 3
-    elif difficult.strip() == '2':
-        l = 5
-    elif difficult.strip() == '1':
-        l = 7
-    with open("rec.txt", mode="r", encoding="utf8") as f:
-        rec = int(str(f.read()))
+from random import randint
+def get_words():
+    with open("words.txt", mode="r", encoding="utf8") as f:
+        words = f.read().splitlines()
+    return words
+def interface():
+    while True:
+        level = input("Введите уровень сложности:"
+                      "\n1 - Новичок."
+                      "\n2 - Средничок."
+                      "\n3 - Старый.\n")
+        if level == '1':
+            default_health = 10
+            break
+        elif level == '2':
+            default_health = 5
+            break
+        elif level == '3':
+            default_health = 3
+            break
+        else:
+            print("Вы ввели неправильное значение!")
+
+    health = default_health
+
+    return default_health,health
+def game(default_health:int,health:int):
+    letter = ""
+    words = get_words()
+    file_record = get_record()
     record = 0
-    with open('words.txt', encoding='utf8') as text:
-        words = text.read().splitlines()
-        words = [i.lower() for i in words]
-    tryin = True
-    while tryin != False:
-        life = l
-        word = str(choice(words))
-        words.remove(word)
-        guess = ['*'] * len(word)
-        end = True
-        print(f"Слово загадно: {''.join(guess)}, количество жизней: {life}")
-        while end != False:
-            letter = input('Введите букву или слово целиком: ').strip()
-            if letter.lower() in word and len(letter) == 1:
+    word = words[randint(0, len(words) - 1)]
+    word_hide = []
+
+    for i in range(0, len(word)):
+        word_hide.append("*")
+
+    playing = True
+
+
+    while playing !=False:
+        if "".join(word_hide) != word.upper() and health > 0:
+            word_hide_str = " ".join(word_hide)
+            print(f"{word_hide_str}  количество жизней {health}")
+            letter = input("Назовите букву или слово целиком: ")
+
+        if letter.upper() == word.upper() or "".join(word_hide) == word.upper():
+            record += 1
+            words.remove(word)
+            print(" ".join(word.upper()))
+            print("Вы выиграли")
+            print(f"Ваш рекорд: {max(record, file_record)}")
+
+            if len(words) == 0:
+                print("Все слова угаданы.")
+                break
+
+            elif input("Вы хотите продолжить Введите 1-если да 0-если нет? ") == "1":
+                playing=True
+                health = default_health
+                word = words[randint(0, len(words) - 1)]
+                word_hide = ["*" for _ in range(len(word))]
+            else:
+                print('Хорошего дня')
+                break
+        elif letter.upper() in word_hide:
+            print("Такая буква уже есть.")
+            health-=1
+        elif letter.upper() not in word.upper() and len(letter) > 1:
+            health = 0
+        elif letter in word:
+            if letter.upper() not in word_hide:
+                for i in range(0, len(word)):
+                    if word[i] == letter:
+                        word_hide[i] = letter.upper()
+        elif letter.lower() in word and len(letter) == 1 and not letter.upper() in ''.join(word_hide):
                 for i in range(len(word)):
                     if word[i] == letter.lower():
-                        guess[i] = letter.upper()
+                        word_hide[i] = letter.upper()
                 print(f"Откройте букву: '{letter.upper()}'")
-                if ''.join(guess).lower() == word:
-                    print(f"Вы угадали слово '{word.upper()}'! Вы выиграли!")
-                    record += 1
-                    end = False
-                elif letter.upper() in ''.join(guess):
-                    life -= 1
-                print(f"Такая буквы уже была, вы теряете жизнь!")
-                if life == 0:
-                    print('')
-                    print(f"Жизни закончились, вы проиграли. Загаданное слово было: {word}")
-                    print(f"Ваш рекорд: {max(rec, record)}")
-                    end = False
-            elif not letter.lower() in word:
-                life -= 1
-                print(f"Такой буквы нет в слове(. Вы теряете жизнь.")
-                if life == 0:
-                    print('')
-                    print(f"Жизни закончились, вы проиграли(. Загаданное слово было: {word}")
-                    print(f"Ваш рекорд: {max(rec, record)}")
-                    end = False
-            elif letter.lower() == word:
-                print(f"Вы угадали слово '{word.upper()}' целиком и вы выиграли!")
-                guess = [x for x in word]
-                record += 1
-                end = False
-            if end == True:
-                print(f"{''.join(guess)}, количество жизней: {life}")
-        print('')
-        if len(words) != 0:
-            cont = input("Хотите ли вы сыграть ещё раз? Если да, то нажмите цифру '1', если нет то '0'. ")
-            if cont == '1':
-                tryin = True
-            elif cont == '0':
-                print(f"До следующей игры! Ваш рекорд {max(rec, record)}")
-                tryin = False
-            elif cont != '1' or cont != '0':
-                f = False
-                while f != True:
-                    cont = input("Мы не поняли ваш ответ, введите '1', если хотите сыграть ещё, или '0', если нет.")
-                    if cont == '1':
-                        tryin = True
-                        f = False
-                    elif cont == '0':
-                        print(f"До следующей игры! Ваш рекорд {record}")
-                        tryin = False
-                        f = False
-        else:
-            print(f'Слова в списке закончились. Ваш рекорд: {max(rec, record)}')
-            tryin = False
+        if health == 0:
+            if input("Хотите восстановить жизни? Введите 1-если да 0-если нет\n") == "1":
+                print(f"Рекорд: {max(record, file_record)}")
+                health = default_health
+            else:
+                print('Хорошего дня')
+                break
+        elif not letter.lower() in word:
+            health -= 1
+            print(f"Такой буквы нет в слове. Вы теряете жизнь.")
+
+    save_record(max(record, file_record))
+
+
+def get_record():
+    with open("rec.txt", mode="r", encoding="utf8") as f:
+        file_record = int(str(f.read()))
+    return file_record
+
+
+def save_record(record: int):
     with open("rec.txt", mode="w", encoding="utf8") as file:
-        file.write(str(max(record, rec)))
-    game()
+        file.write(str(record))
+
+if __name__ == "__main__":
+    default_health, health = interface()
+    game(default_health, health)
